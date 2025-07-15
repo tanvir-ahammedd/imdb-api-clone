@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from watchlist_app.models import Movie
 
-# with Modelserializer
-# class MovieSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Movie
-#         fields = "__all__"
+# without Modelserializer
+# class MovieSerializer(serializers.Serializer):
+#     id = serializers.IntegerField(read_only=True)
+#     name = serializers.CharField(validators=[name_length])
+#     description = serializers.CharField()
+#     active = serializers.BooleanField()
 
 #custom validator
 def name_length(value):
@@ -14,12 +15,16 @@ def name_length(value):
     return value
     
 
-# without Modelserializer -> serializer
-class MovieSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(validators=[name_length])
-    description = serializers.CharField()
-    active = serializers.BooleanField()
+# with Modelserializer -> serializer
+class MovieSerializer(serializers.ModelSerializer):
+    len_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Movie
+        fields = "__all__"
+        
+    def get_len_name(self, object):
+        return len(object.name)
     
     def create(self, validate_data):
         return Movie.objects.create(**validate_data)
