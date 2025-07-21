@@ -9,6 +9,7 @@ from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
+from .permissions import AdminOrReadOnly, ReviewUserOrReadOnly
 
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
@@ -22,27 +23,28 @@ class ReviewList(generics.ListAPIView):
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [IsAuthenticated]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [ReviewUserOrReadOnly]
     
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
-    
+
     def get_queryset(self):
         return Review.objects.all()
-    
+
     def perform_create(self, serializer):
         # getting the primary key
         pk = self.kwargs.get('pk')
         movie = WatchList.objects.get(pk=pk)
-        
+
         reviewer = self.request.user
         review_queryset = Review.objects.filter(watchlist=movie, review_user=reviewer)
-        
+
         if review_queryset.exists():
             raise ValidationError("You already Reviewd this movie")
-        
+
         serializer.save(watchlist=movie, review_user=reviewer)
 
 
