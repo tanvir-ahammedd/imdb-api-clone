@@ -7,18 +7,22 @@ from rest_framework.views import APIView
 from rest_framework import mixins
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     
+    # for specific movie
     def get_queryset(self):
         pk = self.kwargs['pk']
         return Review.objects.filter(watchlist=pk) 
 
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     
@@ -41,25 +45,6 @@ class ReviewCreate(generics.CreateAPIView):
         
         serializer.save(watchlist=movie, review_user=reviewer)
 
-# class ReviewList(mixins.ListModelMixin,
-#                   mixins.CreateModelMixin,
-#                   generics.GenericAPIView):
-#     queryset = Review.objects.all()
-#     serializer_class = ReviewSerializer
-
-#     def get(self, request, *args, **kwargs):
-#         return self.list(request, *args, **kwargs)
-
-#     def post(self, request, *args, **kwargs):
-#         return self.create(request, *args, **kwargs)
-    
-# class ReviewDetail(mixins.RetrieveModelMixin,
-#                    generics.GenericAPIView):
-#     queryset = Review.objects.all()
-#     serializer_class = ReviewSerializer
-    
-#     def get(self, request, *args, **kwargs):
-#         return self.retrieve(request, *args, **kwargs)
 
 class StreamPlatformAV(APIView):
     def get(self, request):
