@@ -14,6 +14,7 @@ from .permissions import AdminOrReadOnly, ReviewUserOrReadOnly
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
     
     # for specific movie
     def get_queryset(self):
@@ -130,4 +131,3 @@ class WatchDetailAV(APIView):
         movie = WatchList.objects.get(pk=pk)
         movie.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
